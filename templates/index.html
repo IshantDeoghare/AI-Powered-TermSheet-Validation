@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Term Sheet Validator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e0e7ff;
+            --secondary: #3f37c9;
+            --dark: #1e1e24;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .upload-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--gray-light);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.03);
+        }
+
+        .upload-area.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
+
+        .results-container {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            margin-top: 2rem;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .text-preview {
+            background: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+
+        .entity-card {
+            background: white;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .entity-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .entity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .entity-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .entity-value {
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-valid {
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+
+        .status-invalid {
+            background: rgba(248, 37, 133, 0.1);
+            color: var(--danger);
+        }
+
+        .validation-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .summary-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .summary-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--primary-light);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .optional-fields {
+            margin-top: 2rem;
+        }
+
+        .optional-title {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .upload-container {
+                padding: 1.5rem;
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Term Sheet Validator</h1>
+            <p class="subtitle">
+                Upload your investment term sheet and we'll automatically validate all required fields,
+                extract key information, and check for completeness.
+            </p>
+        </header>
+
+        <div class="upload-container">
+            <div id="uploadArea" class="upload-area">
+                <div class="upload-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <h3 class="upload-text">Drag & Drop your term sheet here</h3>
+                <p>or</p>
+                <button id="browseBtn" class="btn">Browse Files</button>
+                <input type="file" id="fileInput" style="display: none;" accept=".pdf,.docx,.xlsx,.txt,.png,.jpg,.jpeg">
+                <div id="fileInfo" class="file-info" style="display: none;">
+                    Selected file: <span id="fileName" class="file-name"></span>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <button id="validateBtn" class="btn" style="display: none;">Validate Term Sheet</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <h3>Analyzing your term sheet...</h3>
+            <p>This may take a few moments</p>
+        </div>
+
+        <div id="resultsContainer" class="results-container">
+            <div class="results-header">
+                <h2 class="results-title">Validation Results</h2>
+                <div id="overallStatus" class="summary-status"></div>
+            </div>
+
+            <div class="validation-summary">
+                <div class="summary-text">
+                    Term Sheet Validation Summary
+                </div>
+                <div id="validationSummary" class="summary-status"></div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="entities">Extracted Entities</div>
+                <div class="tab" data-tab="validation">Field Validation</div>
+                <div class="tab" data-tab="text">Text Preview</div>
+            </div>
+
+            <div id="entitiesTab" class="tab-content active">
+                <h3 style="margin-bottom: 1.5rem;">Key Information Extracted</h3>
+                
+                <div id="mandatoryFields">
+                    <!-- Mandatory fields will be inserted here -->
+                </div>
+
+                <div class="optional-fields">
+                    <h4 class="optional-title">Optional Fields</h4>
+                    <div id="optionalFields">
+                        <!-- Optional fields will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="validationTab" class="tab-content">
+                <h3 style="margin-bottom: 1.5rem;">Field Validation Details</h3>
+                <div id="validationFields">
+                    <!-- Validation details will be inserted here -->
+                </div>
+            </div>
+
+            <div id="textTab" class="tab-content">
+                <h3 style="margin-bottom: 1.5rem;">Extracted Text Preview</h3>
+                <div id="textPreview" class="text-preview">
+                    <!-- Extracted text will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const validateBtn = document.getElementById('validateBtn');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const loading = document.getElementById('loading');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const overallStatus = document.getElementById('overallStatus');
+            const validationSummary = document.getElementById('validationSummary');
+
+            // Handle drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                uploadArea.classList.add('active');
+            }
+
+            function unhighlight() {
+                uploadArea.classList.remove('active');
+            }
+
+            uploadArea.addEventListener('drop', handleDrop, false);
+            browseBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFiles);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles({ target: { files } });
+            }
+
+            function handleFiles(e) {
+                const files = e.target.files;
+                if (files.length === 0) return;
+
+                const file = files[0];
+                fileName.textContent = file.name;
+                fileInfo.style.display = 'block';
+                validateBtn.style.display = 'inline-block';
+            }
+
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab') + 'Tab';
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // Validate button click
+            validateBtn.addEventListener('click', async () => {
+                if (fileInput.files.length === 0) return;
+                
+                const file = fileInput.files[0];
+                loading.style.display = 'flex';
+                
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    const response = await fetch('http://127.0.0.1:8000/upload', {
+  method: 'POST',
+  body: formData
+});
+
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    displayResults(data);
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                    console.error(error);
+                } finally {
+                    loading.style.display = 'none';
+                }
+            });
+
+            function displayResults(data) {
+                resultsContainer.style.display = 'block';
+                
+                // Scroll to results
+                setTimeout(() => {
+                    resultsContainer.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+                
+                // Display extracted text
+                document.getElementById('textPreview').textContent = data.extracted_text || 'No text extracted';
+                
+                // Display entities
+                const mandatoryFieldsContainer = document.getElementById('mandatoryFields');
+                const optionalFieldsContainer = document.getElementById('optionalFields');
+                
+                mandatoryFieldsContainer.innerHTML = '';
+                optionalFieldsContainer.innerHTML = '';
+                
+                if (data.entities) {
+                    // Mandatory fields
+                    const mandatoryFields = ['company_name', 'investor_names', 'investment_amount', 'valuation', 'security_type'];
+                    
+                    mandatoryFields.forEach(field => {
+                        if (data.entities[field]) {
+                            const card = createEntityCard(field, data.entities[field]);
+                            mandatoryFieldsContainer.appendChild(card);
+                        }
+                    });
+                    
+                    // Optional fields
+                    if (data.entities.optional_fields) {
+                        for (const [field, value] of Object.entries(data.entities.optional_fields)) {
+                            const card = createEntityCard(field, value, true);
+                            optionalFieldsContainer.appendChild(card);
+                        }
+                    }
+                }
+                
+                // Display validation
+                const validationFieldsContainer = document.getElementById('validationFields');
+                validationFieldsContainer.innerHTML = '';
+                
+                if (data.validation && data.validation.field_validation) {
+                    let validCount = 0;
+                    let totalFields = 0;
+                    
+                    for (const [field, validation] of Object.entries(data.validation.field_validation)) {
+                        totalFields++;
+                        if (validation.present && validation.valid) validCount++;
+                        
+                        const card = document.createElement('div');
+                        card.className = 'entity-card';
+                        
+                        const header = document.createElement('div');
+                        header.className = 'entity-header';
+                        
+                        const name = document.createElement('div');
+                        name.className = 'entity-name';
+                        name.textContent = formatFieldName(field);
+                        
+                        const status = document.createElement('div');
+                        status.className = 'status ' + 
+                            (validation.present && validation.valid ? 'status-valid' : 'status-invalid');
+                        status.textContent = validation.present && validation.valid ? 'Valid' : 'Invalid';
+                        
+                        header.appendChild(name);
+                        header.appendChild(status);
+                        card.appendChild(header);
+                        
+                        const details = document.createElement('div');
+                        details.innerHTML = `
+                            <div><strong>Present:</strong> ${validation.present ? 'Yes' : 'No'}</div>
+                            <div><strong>Valid:</strong> ${validation.valid ? 'Yes' : 'No'}</div>
+                        `;
+                        card.appendChild(details);
+                        
+                        validationFieldsContainer.appendChild(card);
+                    }
+                    
+                    // Update summary
+                    const isValid = validCount === totalFields;
+                    overallStatus.textContent = isValid ? '✅ Valid Term Sheet' : '⚠️ Needs Review';
+                    overallStatus.style.color = isValid ? 'var(--success)' : 'var(--warning)';
+                    
+                    validationSummary.textContent = `${validCount} of ${totalFields} mandatory fields valid`;
+                    validationSummary.style.color = isValid ? 'var(--success)' : 'var(--warning)';
+                }
+            }
+            
+            function createEntityCard(field, value, isOptional = false) {
+                const card = document.createElement('div');
+                card.className = 'entity-card';
+                
+                const header = document.createElement('div');
+                header.className = 'entity-header';
+                
+                const name = document.createElement('div');
+                name.className = 'entity-name';
+                name.textContent = formatFieldName(field);
+                
+                if (isOptional) {
+                    const optionalTag = document.createElement('span');
+                    optionalTag.className = 'status';
+                    optionalTag.style.background = 'var(--gray-light)';
+                    optionalTag.style.color = 'var(--gray)';
+                    optionalTag.textContent = 'Optional';
+                    header.appendChild(optionalTag);
+                }
+                
+                header.prepend(name);
+                card.appendChild(header);
+                
+                if (field === 'valuation' && typeof value === 'object') {
+                    const type = document.createElement('div');
+                    type.className = 'entity-value';
+                    type.innerHTML = `<strong>Type:</strong> ${value.type || 'N/A'}`;
+                    card.appendChild(type);
+                    
+                    const amount = document.createElement('div');
+                    amount.className = 'entity-value';
+                    amount.innerHTML = `<strong>Amount:</strong> ${value.amount || 'N/A'}`;
+                    card.appendChild(amount);
+                } else if (field === 'investor_names' && Array.isArray(value)) {
+                    const investors = document.createElement('div');
+                    investors.className = 'entity-value';
+                    investors.innerHTML = `<strong>Investors:</strong> ${value.join(', ') || 'N/A'}`;
+                    card.appendChild(investors);
+                } else {
+                    const val = document.createElement('div');
+                    val.className = 'entity-value';
+                    val.innerHTML = `<strong>Value:</strong> ${value !== undefined && value !== null ? value : 'N/A'}`;
+                    card.appendChild(val);
+                }
+                
+                return card;
+            }
+            
+            function formatFieldName(field) {
+                return field.split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        });
+    </script>
+</body>
+</html>
